@@ -11,6 +11,10 @@ Icon
 .Spotlight-V100
 .Trashes
 
+
+###Bower###
+web/public/bower_components
+
 ###Node###
 
 lib-cov

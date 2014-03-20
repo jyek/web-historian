@@ -9,10 +9,9 @@ exports.handleRequest = function (req, res) {
 
   if(req.method === 'GET'){
     var parsedUri = url.parse(req.url);
-
     if(parsedUri.pathname === '/'){
       httpHelper.sendResponse(res, "<input>");
-    } else if(parsedUri.pathname.charAt(0) === '/'){
+    } else if (parsedUri.pathname.charAt(0) === '/'){
       var pathname = parsedUri.pathname.substr(1);
       if(!archive.isUrlInList(pathname)){
         httpHelper.sendResponse(res, null, 404);
@@ -21,15 +20,29 @@ exports.handleRequest = function (req, res) {
       }
     }
   } else if(req.method === 'POST'){
-      httpHelper.collectData(req, function(data){
-        var url = data.split('=')[1];
-        archive.readListOfUrls(function(){
-          if(!archive.isUrlInList(url)){
-            archive.addUrlToList(url);
-          }
-          httpHelper.sendResponse(res, null, 302);
-        });
+    httpHelper.collectData(req, function(data){
+      console.log(data);
+      var url = JSON.parse(data).split('=')[1];
+      console.log(url);
+      archive.readListOfUrls(function(){
+        if(!archive.isUrlInList(url)){
+          // if not in url list
+          archive.addUrlToList(url);
+          httpHelper.sendResponse(res, 'loading');
+        } else {
+          // if in url list
+          archive.isURLArchived(url, function(exists){
+            if (exists){
+              archive.returnArchived(url, function(data){
+                httpHelper.sendResponse(res, data.toString());
+              });
+            } else {
+              httpHelper.sendResponse(res, 'loading');
+            }
+          });
+        }
       });
+    });
   } else if(req.method === 'OPTIONS'){
     httpHelper.sendResponse(res, null);
   }

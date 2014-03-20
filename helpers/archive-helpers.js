@@ -1,4 +1,5 @@
 var fs = require('fs');
+var httpReq = require('http-request');
 var path = require('path');
 var _ = require('underscore');
 var list = [];
@@ -27,7 +28,7 @@ exports.initialize = function(pathsObj){
 // modularize your code. Keep it clean!
 
 exports.readListOfUrls = function(cb){
-  cb = cb || function(){};
+  cb = cb || function(){};  
   fs.readFile(exports.paths.list, function(err, data){
     list = data.toString().split("\n");
     cb(list);
@@ -39,7 +40,6 @@ exports.isUrlInList = function(url){
   console.log('list: ', list);
   console.log('index: ', list.indexOf(url));
   if(list.indexOf(url) !== -1){
-    console.log('yes');
     return true;
   } else {
     return false;
@@ -48,7 +48,7 @@ exports.isUrlInList = function(url){
 };
 
 exports.addUrlToList = function(url){
-  fs.writeFile(exports.paths.list, url + "\n", function(err){
+  fs.appendFile(exports.paths.list, url + "\n", function(err){
     if(err){
       console.log('oops!');
     } else {
@@ -57,18 +57,38 @@ exports.addUrlToList = function(url){
   });
 };
 
-exports.isURLArchived = function(url){
+exports.isURLArchived = function(url, cb){
   fs.readdir(exports.paths.archivedSites, function(err, files){
     if(files.indexOf(url) !== -1) {
-      return true;
+      cb(true, url);
     } else {
-      return false;
+      cb(false, url);
     }
   })
 };
 
-exports.downloadUrls = function(){
+exports.returnArchived = function(url, cb){
+  fs.readFile(exports.paths.archivedSites + '/' + url, function(err, data){
+    cb(data);
+  });
+}
 
+exports.downloadUrls = function(url){
+  httpReq.get(url, function(err, res){
+    if(err){
+      console.error(err);
+      return;
+    }
+
+    console.log(res.code, res.headers, res.buffer.toString());
+
+    var stream = fs. createWriteStream(exports.paths.archivedSites + '/' + url);
+    stream.write(res.buffer.toString());
+    stream.on('end', function(){
+      stream.end();
+    })
+
+  });
 };
 
 exports.readListOfUrls();
