@@ -47,6 +47,7 @@ describe("Node Server Request Listener Function", function() {
       function() { return res._ended; },
       function(){
         expect(res._responseCode).to.equal(200);
+
         expect(res._data.toString().match(/google/)).to.be.ok; // the resulting html should have the text "google"
         done();
     });
