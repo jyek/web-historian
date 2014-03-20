@@ -11,3 +11,5 @@ exports.fetch = function(){
     }
   });
 };
+
+exports.fetch();
