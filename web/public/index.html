@@ -24,13 +24,17 @@
         data: JSON.stringify('url='+data),
         contentType: 'application/json',
         success: function(response){
-          var newDoc = document.open("text/html", "replace");
-          newDoc.write(response);
-          newDoc.close();
-          console.log('sucess: ', response);
+          var res = JSON.parse(response);
+          if (res.hasOwnProperty('redirect')){
+            window.location.href = res.redirect;
+          } else {AsS
+            var newDoc = document.open("text/html", "replace");
+            newDoc.write(response);
+            newDoc.close();
+          }
         },
-        error: function(response){
-          console.log('error: ', response);
+        error: function(res){
+          console.log('error: ', res);
         }
       });
       // $('form').submit();

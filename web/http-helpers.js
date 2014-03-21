@@ -1,4 +1,5 @@
 var path = require('path');
+var _ = require('underscore');
 var fs = require('fs');
 var archive = require('../helpers/archive-helpers');
 
@@ -20,6 +21,17 @@ exports.sendResponse = function(res, obj, status){
   status = status || 200;
   res.writeHead(status, headers);
   res.end(JSON.stringify(obj));
+};
+
+exports.sendRedirect = function(res, location, status){
+  console.log('Send redirect:', location);
+  status = status || 302;
+  res.writeHead(status, {Location: 'loading.html', 'Content-Type': "text/html"});
+  res.end(JSON.stringify({redirect: location}));
+};
+
+exports.send404 = function(res){
+  exports.sendReponse(res, "404: Page not found", 404);
 };
 
 exports.collectData = function(req, cb){

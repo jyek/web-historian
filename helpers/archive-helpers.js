@@ -62,8 +62,8 @@ exports.isUrlInList = function(url){
 exports.addUrlToList = function(url){
   var sql = 'INSERT INTO archives (url) VALUES ("' + url + '")';
   exports.performQuery(sql, function(){
-    //HACK
-    exports.downloadUrls(url);
+    // HACK
+    // exports.downloadUrls(url);
     console.log('done!');
   });
 };
@@ -105,7 +105,7 @@ exports.downloadUrls = function(url){
       return;
     }
 
-    console.log(res.code, res.headers, res.buffer.toString());
+    // console.log(res.code, res.headers, res.buffer.toString());
     var data = res.buffer.toString()
 
     exports.addDataToUrl(url, 'GULSEN');

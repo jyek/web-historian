@@ -28,7 +28,7 @@ exports.handleRequest = function (req, res) {
         if(!archive.isUrlInList(url)){
           // if not in url list
           archive.addUrlToList(url);
-          httpHelper.sendResponse(res, 'loading');
+          httpHelper.sendRedirect(res, 'loading.html');
         } else {
           // if in url list
           archive.isURLArchived(url, function(exists){
@@ -37,7 +37,7 @@ exports.handleRequest = function (req, res) {
                 httpHelper.sendResponse(res, data.toString());
               });
             } else {
-              httpHelper.sendResponse(res, 'loading');
+              httpHelper.sendRedirect(res, 'loading.html');
             }
           });
         }
