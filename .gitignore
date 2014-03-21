@@ -15,6 +15,9 @@ Icon
 ###Bower###
 web/public/bower_components
 
+###Archived Sites###
+archives/sites
+
 ###Node###
 
 lib-cov

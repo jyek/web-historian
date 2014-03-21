@@ -35,15 +35,22 @@ exports.performQuery = function(sql, callback){
 
 exports.readListOfUrls = function(cb){
   cb = cb || function(){};
-  var sql = 'SELECT url FROM archives';
-  exports.performQuery(sql, function(err, res){
-    var listofUrls = [];
-    for (var i = 0; i < res.length; i++) {
-      listofUrls.push(res[i].url);
-    }
-    list = listofUrls;
+  fs.readFile(exports.paths.list, function(err, data){
+    list = data.toString().split('\n');
     cb(list);
   });
+
+  // SQL approach:
+  // cb = cb || function(){};
+  // var sql = 'SELECT url FROM archives';
+  // exports.performQuery(sql, function(err, res){
+  //   var listofUrls = [];
+  //   for (var i = 0; i < res.length; i++) {
+  //     listofUrls.push(res[i].url);
+  //   }
+  //   list = listofUrls;
+  //   cb(list);
+  // });
 };
 
 exports.isUrlInList = function(url){
@@ -51,29 +58,24 @@ exports.isUrlInList = function(url){
 };
 
 exports.addUrlToList = function(url){
-  var sql = 'INSERT INTO archives (url) VALUES ("' + url + '")';
-  exports.performQuery(sql, function(){
-    console.log('ArchiveHelpers:', url, 'added');
+  fs.appendFile(exports.paths.list, url + '\n', function(err){
+    if(err){
+      console.log('Archive Helper: failed to write added', url);
+    } else {
+      console.log('Archive Helper: added', url);
+    }
   });
-};
 
-exports.addDataToUrl = function(url, data){
-  var sql = 'INSERT INTO archives (data) VALUES ("' + data + '") WHERE url =' + url;
-  exports.performQuery(sql, function(){
-    console.log('ArchiveHelpers:', data, 'added');
-  });
-};
-
-exports.clearData = function(){
-  var sql = 'DELETE FROM archives WHERE id > 3';
-  performQuery(sql, function(){
-    exports.listAll();
-  });
+  // var sql = 'INSERT INTO archives (url) VALUES ("' + url + '")';
+  // exports.performQuery(sql, function(){
+  //   console.log('ArchiveHelpers:', url, 'added to database');
+  // });
 };
 
 exports.isURLArchived = function(url, cb){
   fs.readdir(exports.paths.archivedSites, function(err, files){
-    cb(files.indexOf(url) !== -1, url);
+    var exists = files.indexOf(url) !== -1;
+    cb(exists, url);
   });
 };
 
@@ -92,8 +94,7 @@ exports.downloadUrls = function(url){
 
     // console.log(res.code, res.headers, res.buffer.toString());
     var data = res.buffer.toString();
-
-    exports.addDataToUrl(url, data);
+    // exports.addDataToUrl(url, data);
 
     var stream = fs.createWriteStream(exports.paths.archivedSites + '/' + url);
     stream.write(data);
@@ -103,4 +104,19 @@ exports.downloadUrls = function(url){
   });
 };
 
-exports.readListOfUrls();
+/********************************************************
+ SQL specific methods
+********************************************************/
+exports.addDataToUrl = function(url, data){
+  var sql = 'INSERT INTO archives (data) VALUES ("' + data + '") WHERE url =' + url;
+  exports.performQuery(sql, function(){
+    console.log('ArchiveHelpers:', data, 'added');
+  });
+};
+
+exports.clearData = function(){
+  var sql = 'DELETE FROM archives WHERE id > 3';
+  performQuery(sql, function(){
+    exports.listAll();
+  });
+};

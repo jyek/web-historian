@@ -1,6 +1,7 @@
-www.gulsen.com
-www.hello.com
-www.lol.com
 www.google.com
-www.apple.com
-www.hello.com
+www.amazon.com
+www.hackreactor.com
+www.cnn.com
+www.yahoo.com
+www.facebook.com
+www.spotify.com
