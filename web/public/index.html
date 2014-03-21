@@ -14,10 +14,8 @@
   <script>
 
   $(document).on('ready', function(){
-    $('.search').on('click', function(event){
-      event.preventDefault();
+    var submitForm = function(){
       var url = $('input').val();
-
       $.ajax({
         url: 'http://127.0.0.1:8080',
         type: 'POST',
@@ -25,20 +23,25 @@
         contentType: 'application/json',
         success: function(response){
           var res = JSON.parse(response);
-          if (res.hasOwnProperty('redirect')){
-            console.log('Should redirect');
-            window.location.href = res.redirect;
-          } else {
-            var newDoc = document.open("text/html", "replace");
-            newDoc.write(response);
-            newDoc.close();
-          }
+          var newDoc = document.open("text/html", "replace");
+          newDoc.write(response);
+          newDoc.close();
         },
         error: function(res){
           console.log('error: ', res);
         }
       });
+    }
+
+    $('.search').on('click', function(e){
+      e.preventDefault();
+      submitForm();
     });
+
+    $(form).submit(function(e){
+      e.preventDefault();
+      submitForm();
+    })
   });
 
   </script>

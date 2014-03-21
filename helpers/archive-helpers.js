@@ -16,7 +16,7 @@ client.connect();
 exports.paths = {
   'siteAssets' : path.join(__dirname, '../web/public'),
   'archivedSites' : path.join(__dirname, '../archives/sites'),
-  'list' : path.join(__dirname, '../archives/sites.txt')
+  'list' : path.join(__dirname, '../archives/sites.txt'),
 };
 
 exports.initialize = function(pathsObj){
@@ -58,7 +58,7 @@ exports.addUrlToList = function(url){
 };
 
 exports.addDataToUrl = function(url, data){
-  var sql = 'INSERT INTO archives (data) VALUES ("' + data + '") WHERE url=' + url;
+  var sql = 'INSERT INTO archives (data) VALUES ("' + data + '") WHERE url =' + url;
   exports.performQuery(sql, function(){
     console.log('ArchiveHelpers:', data, 'added');
   });

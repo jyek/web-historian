@@ -6,34 +6,32 @@ var archive = require('../helpers/archive-helpers');
 var handleGet = function(req, res){
   var parsedUri = url.parse(req.url);
   if(parsedUri.pathname === '/'){
-    httpHelpers.sendResponse(res, "<input>");
+    httpHelpers.serveAssets(res, archive.paths.siteAssets + '/index.html');
+  } else if (parsedUri.pathname === '/loading'){
+    httpHelpers.serveAssets(res, archive.paths.siteAssets + '/loading.html');
   } else if (parsedUri.pathname.charAt(0) === '/'){
-    var pathname = parsedUri.pathname.substr(1);
-    if(!archive.isUrlInList(pathname)){
+    var thisUrl = parsedUri.pathname.substr(1);
+    if(!archive.isUrlInList(thisUrl)){
       httpHelpers.send404(res);
     } else {
-      httpHelpers.sendResponse(res, pathname);
+      httpHelpers.serveAssets(res, archive.paths.archivedSites + '/' + thisUrl);
     }
   }
 };
 
 var handlePost = function(req, res){
   httpHelpers.collectData(req, function(data){
-    var url = JSON.parse(data).url;
+    var site = data.split('=')[1];
     archive.readListOfUrls(function(){
-      if(!archive.isUrlInList(url)){
-        // if not in url list
-        archive.addUrlToList(url);
-        httpHelpers.sendRedirect(res, '/loading.html');
+      if(!archive.isUrlInList(site)){
+        archive.addUrlToList(site);
+        httpHelpers.sendRedirect(res, '/loading');
       } else {
-        // if in url list
-        archive.isURLArchived(url, function(exists){
+        archive.isURLArchived(site, function(exists){
           if (exists){
-            archive.returnArchived(url, function(data){
-              httpHelpers.sendResponse(res, data.toString());
-            });
+            httpHelpers.sendRedirect(res, '/' + site);
           } else {
-            httpHelpers.sendRedirect(res, '/loading.html');
+            httpHelpers.sendRedirect(res, '/loading');
           }
         });
       }
@@ -52,7 +50,7 @@ var actions = {
 };
 
 exports.handleRequest = function (req, res) {
-  console.log('Serving request type:' + req.method + 'for url ' + req.url);
+  console.log('Serving request type:', req.method, 'for url', req.url);
   var action = actions[req.method];
   action(req, res);
 };
