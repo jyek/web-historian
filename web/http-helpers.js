@@ -10,35 +10,28 @@ exports.headers = headers = {
   'Content-Type': "text/html"
 };
 
-exports.paths = {
-  'siteAssets' : path.join(__dirname, '../web/public'),
-  'archivedSites' : path.join(__dirname, '../archives/sites'),
-  'list' : path.join(__dirname, '../archives/sites.txt'),
-  'loading' : path.join(__dirname, 'public/loading.html')
-};
-
 exports.serveAssets = function(res, asset) {
-  fs.readFile(asset, function(err, data){
+  fs.readFile(asset, function(err, html){
     if (err){
-      throw 'HTTPHelpers: Serve assets failed for ' + asset;
+      throw 'HTTPHelpers: Failed to serve asset ' + asset;
     } else {
-      var results = data.buffer.toString();
-      exports.sendResponse(res, results, 200);
+      res.writeHeader(200, headers);
+      res.write(html);
+      res.end();
     }
   });
 };
 
-exports.sendResponse = sendResponse = function(res, obj, status){
+exports.sendResponse = function(res, obj, status){
   status = status || 200;
   res.writeHead(status, headers);
   res.end(JSON.stringify(obj));
 };
 
 exports.sendRedirect = function(res, location, status){
-  console.log('Send redirect:', location);
   status = status || 302;
   res.writeHead(status, {Location: location});
-  res.end(JSON.stringify({redirect: location}));
+  res.end();
 };
 
 exports.send404 = function(res){
