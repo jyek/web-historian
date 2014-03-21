@@ -1,7 +1,6 @@
 var fs = require('fs');
 var httpReq = require('http-request');
 var path = require('path');
-var _ = require('underscore');
 var mysql = require('mysql');
 var list = [];
 
@@ -28,7 +27,7 @@ exports.initialize = function(pathsObj){
 
 exports.performQuery = function(sql, callback){
   callback = callback || function(){};
-  console.log('performing query***', sql)
+  console.log('ArchiveHelper: Perform Query', sql);
   client.query(sql, function(err, res){
     callback(err, res);
   });
@@ -41,37 +40,27 @@ exports.readListOfUrls = function(cb){
     var listofUrls = [];
     for (var i = 0; i < res.length; i++) {
       listofUrls.push(res[i].url);
-    };
+    }
     list = listofUrls;
     cb(list);
   });
 };
 
 exports.isUrlInList = function(url){
-  console.log('url: ', url);
-  console.log('list: ', list);
-  console.log('index: ', list.indexOf(url));
-  if(list.indexOf(url) !== -1){
-    return true;
-  } else {
-    return false;
-  }
-
+  return list.indexOf(url) !== -1;
 };
 
 exports.addUrlToList = function(url){
   var sql = 'INSERT INTO archives (url) VALUES ("' + url + '")';
   exports.performQuery(sql, function(){
-    // HACK
-    // exports.downloadUrls(url);
-    console.log('done!');
+    console.log('ArchiveHelpers:', url, 'added');
   });
 };
 
 exports.addDataToUrl = function(url, data){
   var sql = 'INSERT INTO archives (data) VALUES ("' + data + '") WHERE url=' + url;
   exports.performQuery(sql, function(){
-    console.log('done!');
+    console.log('ArchiveHelpers:', data, 'added');
   });
 };
 
@@ -84,19 +73,15 @@ exports.clearData = function(){
 
 exports.isURLArchived = function(url, cb){
   fs.readdir(exports.paths.archivedSites, function(err, files){
-    if(files.indexOf(url) !== -1) {
-      cb(true, url);
-    } else {
-      cb(false, url);
-    }
-  })
+    cb(files.indexOf(url) !== -1, url);
+  });
 };
 
 exports.returnArchived = function(url, cb){
   fs.readFile(exports.paths.archivedSites + '/' + url, function(err, data){
     cb(data);
   });
-}
+};
 
 exports.downloadUrls = function(url){
   httpReq.get(url, function(err, res){
@@ -106,11 +91,11 @@ exports.downloadUrls = function(url){
     }
 
     // console.log(res.code, res.headers, res.buffer.toString());
-    var data = res.buffer.toString()
+    var data = res.buffer.toString();
 
-    exports.addDataToUrl(url, 'GULSEN');
+    exports.addDataToUrl(url, data);
 
-    var stream = fs. createWriteStream(exports.paths.archivedSites + '/' + url);
+    var stream = fs.createWriteStream(exports.paths.archivedSites + '/' + url);
     stream.write(data);
     stream.on('end', function(){
       stream.end();
